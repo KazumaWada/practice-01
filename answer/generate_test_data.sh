@@ -23,8 +23,14 @@ if [ -z "$START_DATE" ] || [ -z "$END_DATE" ]; then
 fi
 
 # これで.sqlにあるCREATE FUNCTIONを実行していると思っているが、ただ定義されているだけで、関数の中身は実行されていない。
-# SELECT test_notice(2025-07-01, 2025-07-05); で実行される。
-psql -U postgres -d practice_db \
- -v start_date="$START_DATE" \
- -v end_date="$END_DATE" \
- -f functions/generate_test_data.sql
+# SELECT generate_test_data(2025-07-01, 2025-07-05); で実行される。
+# psql -U postgres -d practice_db \
+#  -v start_date="$START_DATE" \
+#  -v end_date="$END_DATE" \
+#  -f functions/generate_test_data.sql
+
+
+# こうやって呼び出すことができる。
+# psql -U ユーザー名 -d データベース名 -c "SELECT generate_test_data($START_DATE, $END_DATE);"
+psql -U postgres -d practice_db -f /workspace/answer/functions/generate_test_data.sql
+psql -U postgres -d practice_db -c "SELECT generate_test_data('$START_DATE'::DATE, '$END_DATE'::DATE);"
