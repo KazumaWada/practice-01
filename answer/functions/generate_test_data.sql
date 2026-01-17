@@ -1,11 +1,10 @@
  -- 指定された期間（開始日と終了日）の注文および注文明細のテストデータを生成するPL/pgSQL関数を作成してください。
 
--- 返り値の型変えた場合用
+-- 返り値の型変えた場合用とか
 DROP FUNCTION IF EXISTS generate_test_data(DATE, DATE);
 
--- NOTE: ここはdateではなくてintergerでいいのかな？
 CREATE OR REPLACE FUNCTION generate_test_data(start_date DATE, end_date DATE)
-RETURNS void  -- 一応、戻り値が違うというエラーが出ている。
+RETURNS void 
 LANGUAGE plpgsql
 AS $$
 DECLARE
@@ -14,27 +13,36 @@ DECLARE
   random_offset  INTEGER;
   random_date  DATE;
   random_index  INTEGER;
+  added_order_id INTEGER;
 BEGIN
-random_product_id := (random() * 5 + 1)::int;
+
+  -- RAISE NOTICE '--- DEBUG ---';
+  -- RAISE NOTICE 'product_id: %, quantity: %, offset: %, date: %, index: %',
+  --     random_product_id, random_quantity, random_offset, random_date, random_index;
+
+
+random_index := (random() * 50 +1)::int;
+
+FOR i  IN 1..random_index LOOP
+
+random_product_id := floor(random() * 5 + 1)::int;
 random_quantity := (random() * 1000 +1)::int;
 random_offset := floor(random() * (end_date - start_date + 1));
 random_date := start_date + random_offset;
-random_index := (random() * 50 +1)::int;
 
-  RAISE NOTICE '--- DEBUG ---';
-  RAISE NOTICE 'product_id: %, quantity: %, offset: %, date: %, index: %',
-      random_product_id, random_quantity, random_offset, random_date, random_index;
+INSERT INTO orders (order_datetime)
+VALUES(random_date)
+RETURNING order_id INTO added_order_id;
 
--- 一つテストデータを入れてみる
-INSERT INTO orders (order_id, order_datetime)
-VALUES(random_index, start_date);
+INSERT INTO order_details (order_id, product_id, quantity)
+VALUES(added_order_id, random_product_id, random_quantity);
 
+END LOOP;
+
+RAISE NOTICE '%件のテストデータを挿入しました', random_index;
 
 END;
 $$ ;
-
--- デバックようとしてここに書いているだけ。
--- SELECT generate_test_data(2025-07-01, 2025-07-05);
 
 
 

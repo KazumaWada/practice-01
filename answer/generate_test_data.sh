@@ -22,6 +22,8 @@ if [ -z "$START_DATE" ] || [ -z "$END_DATE" ]; then
  exit 1
 fi
 
+# TODO: 現実的な日程か、end dateの方がstart dateよりも前になっていないかなどの例外処理
+
 # これで.sqlにあるCREATE FUNCTIONを実行していると思っているが、ただ定義されているだけで、関数の中身は実行されていない。
 # SELECT generate_test_data(2025-07-01, 2025-07-05); で実行される。
 # psql -U postgres -d practice_db \
